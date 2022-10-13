@@ -9,6 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -24,28 +25,36 @@ public class UserServiceIntegrationTest {
         List<User> actual = userService.getUsers();
 
         assertFalse(actual.isEmpty());
-        User alice = actual.stream()
+        Optional<User> alice = actual.stream()
                 .filter(user -> "alice".equals(user.getName()))
-                .findAny()
-                .get();
-        assertNotNull(alice);
+                .findAny();
+        assertTrue(alice.isPresent());
+        assertNull(alice.get().getPosts());
 
-        User bob = actual.stream()
+        Optional<User> bob = actual.stream()
                 .filter(user -> "bob".equals(user.getName()))
-                .findAny()
-                .get();
-        assertNotNull(bob);
+                .findAny();
+        assertTrue(bob.isPresent());
+        assertNull(bob.get().getPosts());
     }
 
     @Test
     public void getByName_whenAliceRequested_returnsUser() {
-        User actual = userService.getByName("alice");
-
-        assertNotNull(actual);
+        userService.getByName("alice");
     }
 
     @Test
     public void getByName_whenClarkRequested_throwsException() {
         assertThrows(UserNotFoundException.class, () -> userService.getByName("clark"));
+    }
+
+    @Test
+    public void getByIdWithPosts_returnsPosts() {
+        User alice = userService.getByName("alice");
+
+        User actual = userService.getByIdWithPosts(alice.getId());
+
+        assertNotNull(actual.getPosts());
+        assertEquals("Hello, world!", actual.getPosts().get(0).getText());
     }
 }

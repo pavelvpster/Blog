@@ -32,6 +32,12 @@ public class UserService {
                 .orElseThrow(() -> new UserNotFoundException("User not found by id: " + id));
     }
 
+    @NotNull
+    public User getByIdWithPosts(long id) {
+        return Optional.ofNullable(userMapper.findByIdWithPosts(id))
+                .orElseThrow(() -> new UserNotFoundException("User not found by id: " + id));
+    }
+
     /**
      * Returns user by name.
      */
