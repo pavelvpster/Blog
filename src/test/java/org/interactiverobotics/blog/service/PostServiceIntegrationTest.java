@@ -10,8 +10,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -38,5 +37,15 @@ public class PostServiceIntegrationTest {
         assertFalse(actual.isEmpty());
         assertEquals(user, actual.get(0).getUser());
         assertEquals("Hello, world!", actual.get(0).getText());
+    }
+
+    @Test
+    public void create_createsPost() {
+        User user = userService.getByName("alice");
+        Post actual = postService.create(user, "TEST");
+
+        assertTrue(actual.getId() > 0);
+
+        postService.delete(actual);
     }
 }

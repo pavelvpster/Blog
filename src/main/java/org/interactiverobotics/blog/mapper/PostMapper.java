@@ -27,4 +27,11 @@ public interface PostMapper {
     @Select("select * from posts where user_id = #{userId}")
     @ResultMap("postMapper")
     List<Post> findByUser(@Param("userId") long userId);
+
+    @Insert("insert into posts(user_id, text) values (#{user.id}, #{text})")
+    @Options(useGeneratedKeys = true, keyProperty = "id")
+    int save(Post post);
+
+    @Delete("delete from posts where id = #{id}")
+    void delete(Post post);
 }
