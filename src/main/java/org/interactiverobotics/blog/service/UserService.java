@@ -1,10 +1,14 @@
 package org.interactiverobotics.blog.service;
 
 import lombok.AllArgsConstructor;
+import org.interactiverobotics.blog.exception.UpdateException;
 import org.interactiverobotics.blog.exception.UserNotFoundException;
 import org.interactiverobotics.blog.mapper.UserMapper;
 import org.interactiverobotics.blog.model.User;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,6 +17,8 @@ import java.util.Optional;
 @AllArgsConstructor
 @Service
 public class UserService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
+
     private final UserMapper userMapper;
 
     /**
@@ -45,5 +51,25 @@ public class UserService {
     public User getByName(@NotNull String name) {
         return Optional.ofNullable(userMapper.findByName(name))
                 .orElseThrow(() -> new UserNotFoundException("User not found by name: " + name));
+    }
+
+    @NotNull
+    public User create(@NotNull String name) {
+        LOGGER.info("Create user. Name: {}", name);
+        User user = User.builder()
+                .name(name)
+                .build();
+        try {
+            userMapper.save(user);
+        } catch (DataAccessException e) {
+            LOGGER.warn("User insert error: ", e);
+            throw new UpdateException("User insert error", e);
+        }
+        return user;
+    }
+
+    public void delete(@NotNull User user) {
+        LOGGER.info("Delete user: {}", user);
+        userMapper.delete(user);
     }
 }

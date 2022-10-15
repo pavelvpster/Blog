@@ -1,5 +1,6 @@
 package org.interactiverobotics.blog.service;
 
+import org.interactiverobotics.blog.exception.UpdateException;
 import org.interactiverobotics.blog.exception.UserNotFoundException;
 import org.interactiverobotics.blog.model.User;
 import org.junit.jupiter.api.Test;
@@ -56,5 +57,23 @@ public class UserServiceIntegrationTest {
 
         assertNotNull(actual.getPosts());
         assertEquals("Hello, world!", actual.getPosts().get(0).getText());
+    }
+
+    @Test
+    public void create_createsUser() {
+        User actual = userService.create("clark");
+
+        assertTrue(actual.getId() > 0);
+
+        userService.delete(actual);
+    }
+
+    @Test
+    public void create_whenUserWithGivenNameAlreadyExists_throwsException() {
+        User clark = userService.create("clark");
+
+        assertThrows(UpdateException.class, () -> userService.create("clark"));
+
+        userService.delete(clark);
     }
 }

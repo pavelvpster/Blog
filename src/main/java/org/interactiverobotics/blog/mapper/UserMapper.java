@@ -35,4 +35,11 @@ public interface UserMapper {
     @Select("select * from users where name = #{userName}")
     @ResultMap("userMapper")
     User findByName(@Param("userName") String name);
+
+    @Insert("insert into users(name) values (#{name})")
+    @Options(useGeneratedKeys = true, keyProperty = "id")
+    int save(User user);
+
+    @Delete("delete from users where id = #{id}")
+    void delete(User user);
 }
