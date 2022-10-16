@@ -41,5 +41,5 @@ public interface UserMapper {
     int save(User user);
 
     @Delete("delete from users where id = #{id}")
-    void delete(User user);
+    int delete(User user);
 }

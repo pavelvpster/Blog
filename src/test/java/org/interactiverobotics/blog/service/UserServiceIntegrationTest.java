@@ -17,6 +17,9 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 public class UserServiceIntegrationTest {
+    private static final String ALICE = "alice";
+    private static final String BOB = "bob";
+    private static final String CLARK = "clark";
 
     @Autowired
     private UserService userService;
@@ -27,13 +30,13 @@ public class UserServiceIntegrationTest {
 
         assertFalse(actual.isEmpty());
         Optional<User> alice = actual.stream()
-                .filter(user -> "alice".equals(user.getName()))
+                .filter(user -> ALICE.equals(user.getName()))
                 .findAny();
         assertTrue(alice.isPresent());
         assertNull(alice.get().getPosts());
 
         Optional<User> bob = actual.stream()
-                .filter(user -> "bob".equals(user.getName()))
+                .filter(user -> BOB.equals(user.getName()))
                 .findAny();
         assertTrue(bob.isPresent());
         assertNull(bob.get().getPosts());
@@ -41,17 +44,17 @@ public class UserServiceIntegrationTest {
 
     @Test
     public void getByName_whenAliceRequested_returnsUser() {
-        userService.getByName("alice");
+        userService.getByName(ALICE);
     }
 
     @Test
     public void getByName_whenClarkRequested_throwsException() {
-        assertThrows(UserNotFoundException.class, () -> userService.getByName("clark"));
+        assertThrows(UserNotFoundException.class, () -> userService.getByName(CLARK));
     }
 
     @Test
     public void getByIdWithPosts_returnsPosts() {
-        User alice = userService.getByName("alice");
+        User alice = userService.getByName(ALICE);
 
         User actual = userService.getByIdWithPosts(alice.getId());
 
@@ -61,7 +64,7 @@ public class UserServiceIntegrationTest {
 
     @Test
     public void create_createsUser() {
-        User actual = userService.create("clark");
+        User actual = userService.create(CLARK);
 
         assertTrue(actual.getId() > 0);
 
@@ -70,10 +73,21 @@ public class UserServiceIntegrationTest {
 
     @Test
     public void create_whenUserWithGivenNameAlreadyExists_throwsException() {
-        User clark = userService.create("clark");
+        User clark = userService.create(CLARK);
 
-        assertThrows(UpdateException.class, () -> userService.create("clark"));
+        assertThrows(UpdateException.class, () -> userService.create(CLARK));
 
         userService.delete(clark);
+    }
+
+    @Test
+    public void delete_deletesUser() {
+        User clark = userService.create(CLARK);
+
+        userService.delete(clark);
+
+        assertTrue(userService.getUsers().stream()
+                .map(User::getName)
+                .noneMatch(name -> CLARK.equals(name)));
     }
 }

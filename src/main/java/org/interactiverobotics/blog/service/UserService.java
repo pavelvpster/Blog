@@ -60,7 +60,8 @@ public class UserService {
                 .name(name)
                 .build();
         try {
-            userMapper.save(user);
+            int n = userMapper.save(user);
+            LOGGER.debug("Records inserted: {}", n);
         } catch (DataAccessException e) {
             LOGGER.warn("User insert error: ", e);
             throw new UpdateException("User insert error", e);
@@ -70,6 +71,10 @@ public class UserService {
 
     public void delete(@NotNull User user) {
         LOGGER.info("Delete user: {}", user);
-        userMapper.delete(user);
+        int n = userMapper.delete(user);
+        if (n != 1) {
+            LOGGER.warn("User was not deleted");
+            throw new UpdateException("User was not deleted");
+        }
     }
 }
