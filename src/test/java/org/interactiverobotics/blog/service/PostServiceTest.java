@@ -10,6 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataAccessException;
 
 import java.util.List;
 
@@ -91,19 +92,25 @@ class PostServiceTest {
     }
 
     @Test
-    public void create_whenRecordNotSaved_throwsException() {
-        when(postMapper.save(any(Post.class))).thenReturn(0);
+    public void create_whenDbThrowsException_throwsException() {
+        when(postMapper.save(any(Post.class))).thenThrow(mock(DataAccessException.class));
 
         assertThrows(UpdateException.class, () -> postService.create(makeUser(), "abc"));
     }
 
     @Test
     public void delete_deletesPost() {
-        doNothing().when(postMapper).delete(any(Post.class));
+        when(postMapper.delete(any(Post.class))).thenReturn(1);
 
         postService.delete(new Post());
 
         verify(postMapper, times(1)).delete(any(Post.class));
+    }
+
+    public void delete_whenNoRecordsDeleted_throwsException() {
+        when(postMapper.delete(any(Post.class))).thenReturn(0);
+
+        assertThrows(UpdateException.class, () -> postService.delete(new Post()));
     }
 
     private User makeUser() {

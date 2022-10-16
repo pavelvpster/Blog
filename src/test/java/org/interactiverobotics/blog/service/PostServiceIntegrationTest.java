@@ -48,4 +48,20 @@ public class PostServiceIntegrationTest {
 
         postService.delete(actual);
     }
+
+    @Test
+    public void delete_deletesPost() {
+        String text = "TEST";
+
+        User user = userService.getByName("alice");
+        Post post = postService.create(user, text);
+
+        postService.delete(post);
+
+        List<Post> actual = postService.getUserPosts(user);
+
+        assertTrue(actual.stream()
+                .map(Post::getText)
+                .noneMatch(t -> t.equals(text)));
+    }
 }

@@ -33,5 +33,5 @@ public interface PostMapper {
     int save(Post post);
 
     @Delete("delete from posts where id = #{id}")
-    void delete(Post post);
+    int delete(Post post);
 }

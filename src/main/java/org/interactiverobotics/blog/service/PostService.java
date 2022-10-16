@@ -9,6 +9,7 @@ import org.interactiverobotics.blog.model.User;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -53,16 +54,22 @@ public class PostService {
                 .user(user)
                 .text(text)
                 .build();
-        int n = postMapper.save(post);
-        if (n != 1) {
-            LOGGER.warn("Post was not inserted");
-            throw new UpdateException("Post insert error");
+        try {
+            int n = postMapper.save(post);
+            LOGGER.debug("Records inserted: {}", n);
+        } catch (DataAccessException e) {
+            LOGGER.warn("Post insert error", e);
+            throw new UpdateException("Post insert error", e);
         }
         return post;
     }
 
     public void delete(@NotNull Post post) {
         LOGGER.info("Delete post: {}", post);
-        postMapper.delete(post);
+        int n = postMapper.delete(post);
+        if (n != 1) {
+            LOGGER.warn("Post was not deleted");
+            throw new UpdateException("Post was not deleted");
+        }
     }
 }
