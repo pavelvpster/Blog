@@ -1,5 +1,6 @@
 package org.interactiverobotics.blog.controller;
 
+import org.interactiverobotics.blog.exception.PostNotFoundException;
 import org.interactiverobotics.blog.exception.UpdateException;
 import org.interactiverobotics.blog.exception.UserNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -16,6 +17,12 @@ public class GlobalControllerExceptionHandler {
     @ExceptionHandler(UserNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ResponseEntity<String> handleUserNotFoundException(RuntimeException e) {
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(PostNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ResponseEntity<String> handlePostNotFoundException(RuntimeException e) {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
     }
 
